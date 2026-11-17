@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-learning.js\" \"$CLAUDE_PROJECT_DIR\"",
+            "timeout": 30,
+            "statusMessage": "Verificando que el aprendizaje esté actualizado…"
+          }
+        ]
+      }
+    ]
+  }
+}

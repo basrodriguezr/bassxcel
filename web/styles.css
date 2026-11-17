@@ -1,0 +1,287 @@
+:root {
+  --green: #4338ca;
+  --green-d: #312e81;
+  --green-l: #e0e7ff;
+  --line: #d4d4d4;
+  --grid: #e2e2e2;
+  --head: #f3f3f3;
+  --sel: rgba(67, 56, 202, .10);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 13px;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { display: flex; flex-direction: column; background: #fff; color: #222; overflow: hidden; }
+
+.titlebar { background: linear-gradient(90deg, var(--green-d), var(--green)); color: #fff; display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 38px; flex-shrink: 0; }
+.logo { width: 24px; height: 24px; border-radius: 5px; background: #fff; color: var(--green); font-weight: 800; display: grid; place-items: center; }
+.appname { font-weight: 600; font-size: 14px; }
+.sep { opacity: .6; }
+#docName { cursor: pointer; padding: 2px 6px; border-radius: 3px; }
+#docName:hover { background: rgba(255, 255, 255, .15); }
+#saveState { margin-left: auto; font-size: 12px; opacity: .85; }
+
+.ribbon { display: flex; flex-wrap: wrap; background: #f8f8f8; border-bottom: 1px solid var(--line); padding: 6px 4px 0; flex-shrink: 0; }
+.grp { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; padding: 0 8px 17px; border-right: 1px solid #e1e1e1; position: relative; }
+.grp .lbl { position: absolute; bottom: 2px; left: 0; right: 0; text-align: center; font-size: 11px; color: #808080; }
+.ribbon button { border: 1px solid transparent; background: transparent; padding: 4px 8px; border-radius: 3px; cursor: pointer; font: inherit; color: #222; min-width: 28px; }
+.ribbon button:hover, .color:hover { background: #e6e6e6; border-color: #d0d0d0; }
+.ribbon button.on { background: var(--green-l); border-color: #a5b4fc; }
+.color { display: inline-flex; align-items: center; gap: 2px; padding: 2px 4px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; }
+.color input { width: 22px; height: 20px; padding: 0; border: none; background: none; cursor: pointer; }
+.ribbon .A { font-weight: 700; text-decoration: underline; }
+.ribbon input.pick { width: 18px; height: 22px; padding: 0; border: none; background: none; cursor: pointer; margin-left: -3px; }
+#fmtSel, #fontSel { font: inherit; padding: 3px 4px; border: 1px solid #c8c8c8; border-radius: 3px; background: #fff; }
+#fontSel { width: 128px; }
+#sizeSel { font: inherit; width: 52px; padding: 3px 4px; border: 1px solid #c8c8c8; border-radius: 3px; background: #fff; }
+.ribbon sup { font-size: 8px; }
+
+.fbar { display: flex; align-items: center; border-bottom: 1px solid var(--line); height: 28px; flex-shrink: 0; }
+/* cuadro de nombres con su botón ▾ (lista de nombres definidos) */
+.nbwrap { display: flex; height: 100%; border-right: 1px solid var(--line); }
+#nameBox { width: 112px; height: 100%; border: none; padding: 0 6px; font: inherit; outline: none; }
+#nameBox:focus { box-shadow: inset 0 0 0 1px var(--green); }
+#nameBoxBtn { width: 18px; border: none; background: transparent; color: #666; cursor: pointer; padding: 0; font-size: 11px; }
+#nameBoxBtn:hover { background: #e6e6e6; }
+.fx { padding: 0 10px; color: #888; font-style: italic; font-family: Georgia, serif; border-right: 1px solid var(--line); line-height: 28px; }
+.fbwrap { flex: 1; position: relative; height: 100%; }
+/* barra de fórmulas: textarea de una línea visible (los saltos Alt+Enter se recorren con el cursor) */
+#formulaInput { position: relative; z-index: 1; display: block; width: 100%; height: 100%; border: none; padding: 3px 8px; font: inherit; line-height: 21px; outline: none; background: transparent; color: transparent; caret-color: #111; resize: none; overflow: hidden; white-space: pre; }
+
+/* Las entradas de texto son transparentes: el texto visible (con referencias coloreadas) lo dibuja un "espejo" detrás */
+.mirror { position: absolute; white-space: pre; overflow: hidden; pointer-events: none; display: block; color: #222; }
+.mirror > span { display: inline-block; }
+.mirror i { font-style: inherit; }
+#fbMirror { inset: 0; padding: 3px 8px; line-height: 21px; }
+#edMirror { display: none; z-index: 3; border: 2px solid var(--green); padding: 0 3px; line-height: 19px; background: #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .2); }
+#formulaInput::selection, #cellEditor::selection { background: rgba(67, 56, 202, .28); color: transparent; }
+#refHL { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 2; }
+.refbox { position: absolute; border: 2px solid; }
+.refbox::after { content: ''; position: absolute; right: -4px; bottom: -4px; width: 5px; height: 5px; background: currentColor; border: 1px solid #fff; }
+#sigTip { position: fixed; display: none; background: #fffdf0; border: 1px solid #d9cf9a; padding: 3px 8px; font-size: 12px; z-index: 70; white-space: nowrap; box-shadow: 0 2px 6px rgba(0, 0, 0, .12); }
+#sigTip b { color: var(--green-d); }
+#mergeLayer { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 1; }
+#mergeLayer div { position: absolute; background: #fff; border-right: 1px solid var(--grid); border-bottom: 1px solid var(--grid); padding: 0 4px; display: flex; align-items: flex-end; justify-content: center; white-space: nowrap; overflow: hidden; line-height: 21px; }
+#extraSel { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 2; }
+#extraSel div { position: absolute; background: var(--sel); border: 1px solid var(--green); }
+#fltBtns { position: absolute; left: 0; top: 0; z-index: 3; }
+.fbtn { position: absolute; width: 15px; height: 15px; padding: 0; font-size: 10px; line-height: 13px; border: 1px solid #b9b9b9; border-radius: 2px; background: #fff; color: #444; cursor: pointer; }
+.fbtn.on { background: var(--green-l); color: var(--green-d); border-color: var(--green); }
+.fltpop { position: fixed; z-index: 80; background: #fff; border: 1px solid #c8c8c8; box-shadow: 0 6px 18px rgba(0, 0, 0, .2); padding: 8px; width: 240px; font-size: 12px; }
+.fltpop button { font: inherit; padding: 4px 10px; border: 1px solid #c8c8c8; border-radius: 3px; background: #f5f5f5; cursor: pointer; }
+.fltpop button:hover { background: var(--green-l); }
+.fp-sort { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.fp-sort button { text-align: left; }
+.fp-search { width: 100%; font: inherit; padding: 4px 6px; border: 1px solid #c8c8c8; border-radius: 3px; margin-bottom: 6px; }
+.fp-list { max-height: 220px; overflow: auto; border: 1px solid #e3e3e3; padding: 4px; }
+.fp-list label { display: block; padding: 2px 2px; white-space: nowrap; cursor: pointer; }
+.fp-btns { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; }
+#acList { position: fixed; display: none; background: #fff; border: 1px solid #c8c8c8; box-shadow: 0 4px 14px rgba(0, 0, 0, .18); z-index: 71; min-width: 240px; max-height: 260px; overflow: auto; }
+#acList div { padding: 4px 10px; cursor: pointer; font-size: 12px; display: flex; justify-content: space-between; gap: 16px; }
+#acList div small { color: #888; }
+#acList div.on { background: var(--green-l); }
+/* nombres definidos en el autocompletado (Excel los distingue con otro ícono) */
+#acList div.nm span { color: var(--green-d); }
+#acList div.nm small { font-style: italic; }
+
+#gridWrap { flex: 1; overflow: auto; position: relative; outline: none; background: #fff; }
+#gridInner { position: relative; width: max-content; }
+#grid { border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+#grid td, #grid th { height: 22px; border-right: 1px solid var(--grid); border-bottom: 1px solid var(--grid); padding: 0 4px; white-space: nowrap; overflow: hidden; line-height: 21px; }
+/* alineación vertical predeterminada de Excel: inferior */
+#grid td { cursor: cell; vertical-align: bottom; }
+/* fila con alto distinto (manual, automático por ajuste o fuente): --rh alto total, --lh alto útil */
+#grid tr.ch > td, #grid tr.ch > th { height: var(--rh); line-height: min(21px, var(--lh)); }
+/* ajustar texto: varias líneas sin desbordar a la derecha; nunca agranda la fila más allá de su alto */
+#grid td .wr { white-space: pre-wrap; overflow-wrap: anywhere; overflow: hidden; max-height: var(--lh, 21px); }
+#grid th { background: var(--head); color: #555; font-weight: normal; position: sticky; user-select: none; border-color: var(--line); z-index: 4; }
+#grid thead th { top: 0; text-align: center; }
+#grid th.rh { left: 0; text-align: center; z-index: 3; font-size: 12px; }
+#grid th.corner { left: 0; top: 0; z-index: 6; }
+#grid th.hl { background: var(--green-l); color: var(--green-d); font-weight: 600; }
+#grid td.num { text-align: right; }
+#grid td.bool, #grid td.err { text-align: center; }
+#grid td.err { color: #c00000; }
+#grid td.ovc { overflow: visible; }
+#grid td .ov { display: block; overflow: hidden; white-space: nowrap; position: relative; z-index: 1; pointer-events: none; }
+.rz { position: absolute; right: -3px; top: 0; width: 6px; height: 100%; cursor: col-resize; z-index: 7; }
+/* borde inferior del encabezado de fila: arrastrar cambia el alto, doble clic lo autoajusta */
+.rzr { position: absolute; left: 0; bottom: 0; width: 100%; height: 5px; cursor: row-resize; z-index: 7; }
+#sizeTip { position: fixed; display: none; background: #fffdf0; border: 1px solid #d9cf9a; padding: 2px 8px; font-size: 12px; z-index: 90; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 6px rgba(0, 0, 0, .12); }
+
+#selBox { position: absolute; border: 1px solid var(--green); background: var(--sel); pointer-events: none; z-index: 2; }
+/* matrices dinámicas: borde azul fino del rango desbordado (discontinuo si el ancla da #¡DESBORDAMIENTO!) */
+#spillBox { position: absolute; display: none; border: 1px solid #2f7ad8; pointer-events: none; z-index: 2; }
+#spillBox.err { border-style: dashed; }
+/* indicador de error de desbordamiento (abre el menú con el motivo y "Seleccionar celdas que obstruyen") */
+#spillTag { position: absolute; display: none; z-index: 5; width: 16px; height: 16px; padding: 0; border: 1px solid #c9a227; border-radius: 2px; background: #ffe27a; color: #6b5000; font: 700 11px/14px "Segoe UI", system-ui, sans-serif; cursor: pointer; }
+#spillTag:hover { background: #ffd43b; }
+/* celda fantasma: la barra de fórmulas muestra la fórmula del ancla en gris */
+#fbMirror.ghost { color: #a0a0a0; }
+#actBox { position: absolute; border: 2px solid var(--green); pointer-events: none; z-index: 2; }
+#fillHandle { position: absolute; right: -4px; bottom: -4px; width: 7px; height: 7px; background: var(--green); outline: 1px solid #fff; pointer-events: auto; cursor: crosshair; }
+#fillBox { position: absolute; border: 1px dashed #444; pointer-events: none; z-index: 2; display: none; }
+#clipBox { position: absolute; border: 2px dashed var(--green); pointer-events: none; z-index: 2; display: none; animation: ants 1s linear infinite; }
+@keyframes ants { 50% { border-color: #a5b4fc; } }
+#grid tr.sp td { padding: 0; border: none; background: transparent; }
+/* editor de celda: textarea (admite Alt+Enter) transparente; el texto visible lo dibuja #edMirror */
+#cellEditor { position: absolute; display: none; z-index: 4; border: 2px solid transparent; padding: 0 3px; font: inherit; line-height: 19px; outline: none; background: transparent; color: transparent; caret-color: #111; resize: none; overflow: hidden; white-space: pre; }
+
+footer { display: flex; align-items: stretch; border-top: 1px solid var(--line); background: #f3f3f3; height: 30px; flex-shrink: 0; }
+#tabs { display: flex; overflow-x: auto; flex: 1; }
+.tab { border: none; border-right: 1px solid var(--line); background: transparent; padding: 0 16px; cursor: pointer; font: inherit; white-space: nowrap; color: #333; }
+.tab:hover { background: #e9e9e9; }
+.tab.on { background: #fff; color: var(--green); font-weight: 600; box-shadow: inset 0 -3px 0 var(--green); }
+.tab.add { font-size: 18px; color: #666; padding: 0 12px; }
+#status { padding: 0 14px; color: #444; white-space: nowrap; display: flex; align-items: center; gap: 18px; }
+
+.menu { position: fixed; background: #fff; border: 1px solid #c8c8c8; box-shadow: 0 4px 14px rgba(0, 0, 0, .18); padding: 4px 0; z-index: 50; min-width: 200px; display: none; }
+.menu div { padding: 6px 18px; cursor: pointer; }
+.menu div:hover { background: var(--green-l); }
+.menu div.dis { color: #a3a3a3; cursor: default; }
+.menu div.head { font-weight: 600; cursor: default; }
+.menu div.dis:hover, .menu div.head:hover { background: transparent; }
+.menu hr { border: none; border-top: 1px solid #e3e3e3; margin: 4px 0; }
+/* submenú (▸): Formato condicional ▸ Reglas para resaltar celdas */
+.menu div.sub { position: relative; padding-right: 30px; }
+.menu div.sub::after { content: '▸'; position: absolute; right: 10px; color: #666; }
+.menu div.sub.open { background: var(--green-l); }
+#menu2 { z-index: 51; }
+
+#toast { position: fixed; bottom: 44px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 8px 14px; border-radius: 4px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 60; }
+#toast.show { opacity: 1; }
+
+dialog { border: 1px solid #c8c8c8; border-radius: 6px; box-shadow: 0 10px 30px rgba(0, 0, 0, .25); padding: 16px 20px; max-width: 640px; }
+dialog h3 { margin: 0 0 12px; color: var(--green-d); }
+dialog label { display: flex; flex-direction: column; gap: 3px; margin-bottom: 10px; }
+dialog input { font: inherit; padding: 4px 6px; border: 1px solid #c8c8c8; border-radius: 3px; }
+dialog .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+dialog button { font: inherit; padding: 5px 12px; border: 1px solid #c8c8c8; border-radius: 3px; background: #f5f5f5; cursor: pointer; }
+dialog button:hover { background: var(--green-l); }
+dialog .row.left { justify-content: flex-start; margin: 0 0 8px; }
+dialog select, dialog textarea { font: inherit; padding: 4px 6px; border: 1px solid #c8c8c8; border-radius: 3px; }
+dialog textarea { resize: vertical; }
+dialog label.chk { flex-direction: row; align-items: center; gap: 6px; margin-bottom: 6px; }
+dialog button:disabled { color: #a3a3a3; cursor: default; background: #f5f5f5; }
+#msgDlg { min-width: 320px; }
+#msgDlg p { margin: 0 0 8px; white-space: pre-line; }
+#nameEdDlg, #pasteNameDlg { min-width: 360px; }
+/* Administrador de nombres: lista con Nombre, Valor, Se refiere a, Ámbito y Comentario */
+dialog.wide { max-width: 860px; width: 820px; }
+.nmlist { height: 220px; overflow: auto; border: 1px solid #c8c8c8; margin-bottom: 10px; }
+#nmTable { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+#nmTable th { position: sticky; top: 0; background: var(--head); text-align: left; font-weight: 600; padding: 3px 6px; border-bottom: 1px solid var(--line); }
+#nmTable th:nth-child(1) { width: 18%; } #nmTable th:nth-child(2) { width: 22%; } #nmTable th:nth-child(3) { width: 26%; } #nmTable th:nth-child(4) { width: 12%; }
+#nmTable td { padding: 3px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: default; }
+#nmTable tr.on td { background: var(--green-l); }
+.nmref { display: flex; gap: 4px; }
+.nmref input { flex: 1; }
+/* cuadro de diálogo reutilizable (dlgBox): advertencia antes de ordenar, Ordenar, Opciones de ordenación */
+dialog.bxdlg { min-width: 340px; }
+.bxdlg .dlgbody p { margin: 0 0 8px; }
+.bxdlg fieldset { border: 1px solid #d4d4d4; border-radius: 4px; margin: 8px 0 0; padding: 4px 10px 0; }
+.bxdlg legend { padding: 0 4px; color: #555; }
+#sortDlg { width: 720px; max-width: 92vw; }
+.srt-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-bottom: 8px; }
+.srt-bar button { padding: 4px 8px; }
+dialog .srt-bar label.chk { margin: 0 0 0 auto; }
+.srt-head, .srt-lvl { display: grid; grid-template-columns: 84px 1fr 140px 1fr; gap: 6px; align-items: center; }
+.srt-head { font-size: 12px; color: #555; padding: 0 6px 3px; }
+.srt-levels { height: 190px; overflow: auto; border: 1px solid #c8c8c8; padding: 2px 0; }
+.srt-lvl { padding: 3px 6px; }
+.srt-lvl.on { background: var(--green-l); }
+.srt-lvl select { width: 100%; min-width: 0; }
+/* Quitar duplicados: lista de columnas con casillas */
+#dedupeDlg { width: 460px; max-width: 92vw; }
+.dd-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-bottom: 8px; }
+.dd-bar button { padding: 4px 8px; }
+dialog .dd-bar label.chk { margin: 0 0 0 auto; }
+.dd-head { font-size: 12px; color: #555; padding: 0 6px 3px; }
+.dd-list { max-height: 190px; overflow: auto; border: 1px solid #c8c8c8; padding: 4px 6px; }
+dialog .dd-list label.chk { margin-bottom: 2px; }
+/* dlgBox: los campos ocultos con [hidden] no se muestran aunque la etiqueta sea flex; botones a la izquierda ("Borrar todos") */
+.bxdlg [hidden] { display: none !important; }
+dialog .row .dlg-aside { margin-right: auto; }
+/* Validación de datos: ▾ junto a la celda activa, mensaje de entrada, lista desplegable, cuadro y mensaje de error */
+#dvBtn { position: absolute; display: none; z-index: 5; width: 17px; padding: 0; border: 1px solid #a9a9a9; background: #f3f3f3; color: #333; font-size: 10px; line-height: 1; cursor: default; }
+#dvBtn:hover { background: #e3e3e3; }
+#dvTip { position: absolute; display: none; z-index: 6; max-width: 260px; padding: 4px 8px; background: #ffffe1; border: 1px solid #767676; box-shadow: 1px 2px 4px rgba(0, 0, 0, .2); font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; pointer-events: none; }
+#dvTip b { display: block; margin-bottom: 2px; }
+#dvList { position: fixed; z-index: 85; background: #fff; border: 1px solid #767676; box-shadow: 0 2px 6px rgba(0, 0, 0, .2); overflow-y: auto; font-size: 13px; }
+#dvList div { height: 18px; line-height: 18px; padding: 0 6px; white-space: nowrap; cursor: default; }
+#dvList div.on { background: #0078d7; color: #fff; }
+#dvDlg { width: 480px; max-width: 92vw; }
+.dv-tabs { display: flex; gap: 2px; border-bottom: 1px solid #c8c8c8; margin-bottom: 10px; }
+dialog .dv-tab { border-radius: 3px 3px 0 0; border-bottom-color: transparent; background: #f0f0f0; padding: 4px 10px; margin-bottom: -1px; }
+dialog .dv-tab.on { background: #fff; border-bottom-color: #fff; font-weight: 600; }
+.dv-page { min-height: 250px; }
+.dv-page p { margin: 4px 0 8px; }
+.dv-grid { display: grid; grid-template-columns: 1fr auto; gap: 0 12px; align-items: end; }
+#dvDlg label:not(.chk) > input, #dvDlg label:not(.chk) > select, #dvDlg textarea { width: 100%; }
+.dv-err { display: flex; gap: 14px; align-items: flex-start; max-width: 420px; }
+.dv-err p { white-space: pre-line; margin: 4px 0 8px; }
+.dv-ico::before { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; font-weight: 700; color: #fff; }
+.dv-ico.stop::before { content: '✕'; background: #c42b1c; }
+.dv-ico.warning::before { content: '!'; background: #f2b200; color: #222; border-radius: 4px; }
+.dv-ico.information::before { content: 'i'; background: #0067c0; font-family: Georgia, serif; }
+/* dlgBox no modal (cuadros rápidos de formato condicional, Nueva regla): la hoja se ve y un clic en una celda escribe su
+   referencia; la capa transparente bloquea el resto de la página */
+dialog.bxdlg.modeless { position: fixed; top: 96px; left: 0; right: 0; margin: 0 auto; z-index: 96; }
+.dlg-shield { position: fixed; inset: 0; z-index: 95; background: transparent; cursor: cell; }
+dialog .row .dlg-after { order: 9; }
+/* Formato condicional */
+.cf-q { margin: 0 0 8px; font-weight: 600; }
+.cf-qrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.cf-qrow input:not([type]), .cf-qrow input[type="text"] { width: 150px; }
+.cf-qrow input[type="number"] { width: 70px; }
+dialog .cf-qrow label.chk { margin: 0; }
+.cf-sample { display: inline-block; padding: 1px 10px; min-width: 110px; text-align: center; border: 1px solid #c8c8c8; }
+.cf-sample.big { display: block; padding: 10px; font-size: 15px; }
+.cf-prev { display: flex; align-items: center; gap: 8px; margin: 10px 0 6px; }
+.cf-prev .cf-sample { flex: 1; }
+#cfRuleDlg { width: 620px; max-width: 94vw; }
+#cfTypes { width: 100%; }
+.cf-desc { min-height: 150px; }
+.cf-desc p { margin: 6px 0; }
+#cfFml { width: 100%; }
+#cfFmtDlg { width: 420px; max-width: 92vw; }
+.cf-page { min-height: 150px; }
+.cf-color { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+dialog .cf-color label.chk { margin: 0; }
+.cf-mlbl { margin: 6px 0 4px; color: #555; }
+#cfMgrDlg { width: 820px; max-width: 96vw; }
+dialog label.cf-show { flex-direction: row; align-items: center; gap: 8px; }
+.cf-bar { display: flex; gap: 4px; margin-bottom: 6px; }
+.cf-bar button { padding: 4px 8px; }
+.cf-list { height: 220px; overflow: auto; border: 1px solid #c8c8c8; }
+#cfTable { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+#cfTable th { position: sticky; top: 0; z-index: 1; background: var(--head); text-align: left; font-weight: 600; padding: 3px 6px; border-bottom: 1px solid var(--line); }
+#cfTable th:nth-child(1) { width: 36%; } #cfTable th:nth-child(2) { width: 22%; } #cfTable th:nth-child(4) { width: 90px; }
+#cfTable td { padding: 3px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: default; }
+#cfTable td .cf-sample { min-width: 0; width: 100%; }
+#cfTable td input.cf-at { width: 100%; padding: 2px 4px; }
+#cfTable td.cf-stopc { text-align: center; }
+#cfTable tr.on td { background: var(--green-l); }
+/* Barras de datos, eje e íconos del formato condicional (ronda 5e): capas detrás del valor dentro de la celda o de la
+   combinación; el valor (.cfv) queda encima. En impresión, app.js agrega las mismas reglas (CF_DECO_CSS) */
+.cfbar { position: absolute; top: 2px; bottom: 2px; box-sizing: border-box; pointer-events: none; }
+.cfaxis { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px dashed #000; pointer-events: none; }
+.cfv { position: relative; }
+.cfic { position: absolute; left: 2px; bottom: 3px; line-height: 0; pointer-events: none; }
+/* Galerías del menú (escalas, barras, íconos) y muestras de los cuadros */
+.menu div .cf-sw { display: inline-flex; align-items: center; gap: 1px; width: 52px; height: 14px; margin-right: 8px; vertical-align: middle; border: 1px solid #c8c8c8; position: relative; overflow: hidden; }
+.menu div .cf-sw.ic { border: none; width: 84px; }
+.cf-vsm { display: inline-flex; align-items: center; gap: 1px; position: relative; min-width: 110px; height: 18px; border: 1px solid #c8c8c8; overflow: hidden; vertical-align: middle; }
+.cf-vsm.ic { border: none; }
+#cfTable td .cf-vsm { min-width: 0; width: 100%; }
+.cf-vis table { border-collapse: collapse; margin: 6px 0; }
+.cf-vis td, .cf-vis th { padding: 3px 6px; text-align: left; font-weight: normal; }
+.cf-vis th { color: #555; }
+.cf-vis input.cf-ref { width: 120px; }
+.cf-vis input[type="color"] { width: 60px; }
+.cf-irows td { padding: 2px 6px; }
+.cf-vprev { display: flex; align-items: center; gap: 8px; margin: 8px 0 4px; }
+.cf-vprev .cf-vsm { flex: 1; }
+.help p { margin: 0 0 10px; line-height: 1.5; }
+.help code { background: #f1f1f1; padding: 1px 4px; border-radius: 3px; }
+.fnlist { font-family: Consolas, monospace; font-size: 12px; color: #444; max-height: 160px; overflow: auto; }

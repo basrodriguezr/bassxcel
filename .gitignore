@@ -1,0 +1,26 @@
+# Dependencias (se reinstalan con npm install)
+node_modules/
+
+# Instaladores y builds generados (electron-builder); se conservan las notas de versión
+dist/*
+!dist/NOTAS-*.md
+
+# Configuración local de Claude Code (personal; settings.json, agentes, hooks y learning sí se versionan)
+.claude/settings.local.json
+
+# Perfiles y temporales de las pruebas con Chrome (normalmente quedan en %TEMP%)
+bx-cdp-*/
+bx-mut-*/
+*.log
+npm-debug.log*
+
+# Sistema operativo y editores
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# Variables de entorno
+.env
+.env.*

@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bassxcel</title>
+<meta name="theme-color" content="#4338ca">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="titlebar">
+  <div class="logo">B</div>
+  <span class="appname">Bassxcel</span>
+  <span class="sep">—</span>
+  <span id="docName" title="Cambiar nombre del libro">Libro1</span>
+  <span id="saveState"></span>
+</header>
+
+<nav class="ribbon">
+  <div class="grp">
+    <button data-cmd="new" title="Libro nuevo (Ctrl+U)">📄 Nuevo</button>
+    <button data-cmd="open" title="Abrir .bassx, .xlsx, .xls, .ods o .csv (Ctrl+A)">📂 Abrir</button>
+    <button data-cmd="save" title="Guardar (Ctrl+G)">💾 Guardar</button>
+    <button data-cmd="saveas" title="Guardar como… (F12)">Guardar como</button>
+    <button data-cmd="print" title="Imprimir o guardar como PDF (Ctrl+P)">🖨 Imprimir</button>
+    <div class="lbl">Archivo</div>
+  </div>
+  <div class="grp">
+    <button data-cmd="xlsx" title="Exportar a Excel (.xlsx)">Excel .xlsx</button>
+    <button data-cmd="csv" title="Exportar hoja actual a CSV">CSV</button>
+    <div class="lbl">Exportar</div>
+  </div>
+  <div class="grp">
+    <button data-cmd="undo" title="Deshacer (Ctrl+Z)">↶</button>
+    <button data-cmd="redo" title="Rehacer (Ctrl+Y)">↷</button>
+    <div class="lbl">Edición</div>
+  </div>
+  <div class="grp">
+    <select id="fontSel" title="Fuente">
+      <option value="">Segoe UI</option>
+      <option>Aptos</option><option>Arial</option><option>Calibri</option><option>Cambria</option>
+      <option>Consolas</option><option>Courier New</option><option>Georgia</option><option>Tahoma</option>
+      <option>Times New Roman</option><option>Trebuchet MS</option><option>Verdana</option>
+    </select>
+    <input id="sizeSel" list="sizeList" title="Tamaño de fuente (puntos)" autocomplete="off" spellcheck="false" value="11">
+    <datalist id="sizeList"><option value="8"><option value="9"><option value="10"><option value="11"><option value="12"><option value="14"><option value="16"><option value="18"><option value="20"><option value="22"><option value="24"><option value="26"><option value="28"><option value="36"><option value="48"><option value="72"></datalist>
+    <button data-cmd="font-up" title="Aumentar tamaño de fuente (Ctrl+Mayús+&gt;)">A<sup>▲</sup></button>
+    <button data-cmd="font-down" title="Disminuir tamaño de fuente (Ctrl+&lt;)">A<sup>▼</sup></button>
+    <button data-cmd="b" id="btnB" title="Negrita (Ctrl+N o Ctrl+2)"><b>N</b></button>
+    <button data-cmd="i" id="btnI" title="Cursiva (Ctrl+K o Ctrl+3)"><i>K</i></button>
+    <button data-cmd="u" id="btnU" title="Subrayado (Ctrl+S o Ctrl+4)"><u>S</u></button>
+    <button data-cmd="bg-last" title="Aplicar color de relleno">🪣</button><input type="color" id="bgColor" class="pick" value="#fff2cc" title="Elegir color de relleno">
+    <button data-cmd="bg-none" title="Sin relleno">∅</button>
+    <button data-cmd="fg-last" title="Aplicar color de fuente"><span class="A">A</span></button><input type="color" id="fgColor" class="pick" value="#c00000" title="Elegir color de fuente">
+    <button data-cmd="borders" title="Bordes">▦ Bordes ▾</button>
+    <button data-cmd="clearfmt" title="Borrar formato">⌫ Formato</button>
+    <div class="lbl">Fuente</div>
+  </div>
+  <div class="grp">
+    <button data-cmd="al-left" id="alL" title="Alinear a la izquierda">⯇</button>
+    <button data-cmd="al-center" id="alC" title="Centrar">≡</button>
+    <button data-cmd="al-right" id="alR" title="Alinear a la derecha">⯈</button>
+    <button data-cmd="va-top" id="vaT" title="Alinear en la parte superior">⤒</button>
+    <button data-cmd="va-middle" id="vaM" title="Alinear en el medio">⇕</button>
+    <button data-cmd="va-bottom" id="vaB" title="Alinear en la parte inferior">⤓</button>
+    <button data-cmd="wrap" id="btnWrap" title="Ajustar texto (Alt+Enter agrega un salto de línea al escribir)">↵ Ajustar texto</button>
+    <button data-cmd="merge" title="Combinar y centrar (o separar celdas)">⇔ Combinar</button>
+    <div class="lbl">Alineación</div>
+  </div>
+  <div class="grp">
+    <select id="fmtSel" title="Formato de número">
+      <option value="general">General</option>
+      <option value="number">Número</option>
+      <option value="integer">Entero</option>
+      <option value="currency">Moneda</option>
+      <option value="percent">Porcentaje</option>
+      <option value="date">Fecha</option>
+      <option value="time">Hora</option>
+      <option value="datetime">Fecha y hora</option>
+      <option value="scientific">Científica</option>
+      <option value="text">Texto</option>
+    </select>
+    <button data-cmd="thousands" title="Estilo millares (separador de miles)">000</button>
+    <button data-cmd="dec-more" title="Aumentar decimales">,0→</button>
+    <button data-cmd="dec-less" title="Disminuir decimales">←,0</button>
+    <div class="lbl">Número</div>
+  </div>
+  <div class="grp">
+    <button data-cmd="cf" title="Formato condicional: resalta las celdas según su valor (mayor que, entre, texto, fechas, duplicados, superiores, promedio o una fórmula) o con barras de datos, escalas de color y conjuntos de íconos">▤ Formato condicional ▾</button>
+    <div class="lbl">Estilos</div>
+  </div>
+  <div class="grp">
+    <button data-cmd="ins-row" title="Insertar filas">+ Fila</button>
+    <button data-cmd="del-row" title="Eliminar filas">− Fila</button>
+    <button data-cmd="ins-col" title="Insertar columnas">+ Columna</button>
+    <button data-cmd="del-col" title="Eliminar columnas">− Columna</button>
+    <div class="lbl">Celdas</div>
+  </div>
+  <div class="grp">
+    <button data-cmd="autosum" title="Autosuma">Σ Autosuma</button>
+    <button data-cmd="sort-asc" title="Ordenar A → Z por la columna activa">A→Z</button>
+    <button data-cmd="sort-desc" title="Ordenar Z → A por la columna activa">Z→A</button>
+    <button data-cmd="sort" title="Ordenar: cuadro con varios niveles, mayúsculas y orientación">⇅ Ordenar</button>
+    <button data-cmd="filter" title="Activar o quitar el filtro (Ctrl+Mayús+L; Ctrl+Alt+L vuelve a aplicarlo)">⧩ Filtro</button>
+    <button data-cmd="dedupe" title="Quitar duplicados: elimina las filas repetidas del rango según las columnas elegidas">Quitar duplicados</button>
+    <button data-cmd="dv" title="Validación de datos: limita lo que se puede escribir en las celdas (listas desplegables, números, fechas, longitud o una fórmula)">☑ Validación de datos ▾</button>
+    <button data-cmd="find" title="Buscar (Ctrl+B) · Reemplazar (Ctrl+L)">🔍 Buscar</button>
+    <div class="lbl">Datos</div>
+  </div>
+  <div class="grp">
+    <button data-cmd="names" title="Administrador de nombres (Ctrl+F3)">🏷 Administrador de nombres</button>
+    <button data-cmd="definename" title="Asignar nombre a la selección">Asignar nombre</button>
+    <button data-cmd="usename" title="Utilizar en la fórmula: pegar un nombre (F3)">Utilizar en la fórmula</button>
+    <button data-cmd="createnames" title="Crear desde la selección (Ctrl+Mayús+F3)">Crear desde la selección</button>
+    <div class="lbl">Nombres definidos</div>
+  </div>
+  <div class="grp">
+    <button data-cmd="freeze" title="Inmovilizar paneles">❄ Inmovilizar ▾</button>
+    <div class="lbl">Vista</div>
+  </div>
+  <div class="grp">
+    <button data-cmd="help" title="Ayuda y funciones">? Ayuda</button>
+    <div class="lbl">Ayuda</div>
+  </div>
+</nav>
+
+<div class="fbar">
+  <div class="nbwrap">
+    <input id="nameBox" spellcheck="false" autocomplete="off" title="Cuadro de nombres: escribe B5, Hoja2!A1:C3 o un nombre y presiona Enter (un nombre nuevo se asigna a la selección)">
+    <button id="nameBoxBtn" type="button" tabindex="-1" title="Nombres definidos">▾</button>
+  </div>
+  <span class="fx">fx</span>
+  <div class="fbwrap">
+    <div id="fbMirror" class="mirror"><span></span></div>
+    <textarea id="formulaInput" rows="1" wrap="off" spellcheck="false" autocomplete="off"></textarea>
+  </div>
+</div>
+
+<div id="gridWrap" tabindex="0">
+  <div id="gridInner">
+    <table id="grid"></table>
+    <div id="selBox"><div id="fillHandle" title="Arrastra para rellenar"></div></div>
+    <div id="actBox"></div>
+    <div id="fillBox"></div>
+    <div id="clipBox"></div>
+    <div id="refHL"></div>
+    <div id="edMirror" class="mirror"><span></span></div>
+    <textarea id="cellEditor" rows="1" wrap="off" spellcheck="false" autocomplete="off"></textarea>
+  </div>
+</div>
+
+<footer>
+  <div id="tabs"></div>
+  <div id="status"></div>
+</footer>
+
+<div id="menu" class="menu"></div>
+<div id="sigTip"></div>
+<div id="acList"></div>
+<div id="toast"></div>
+<input type="file" id="fileInput" hidden accept=".bassx,.json,.csv,.tsv,.txt,.xlsx,.xlsm,.xls,.ods">
+
+<dialog id="findDlg">
+  <form method="dialog">
+    <h3>Buscar y reemplazar</h3>
+    <label>Buscar <input id="findText" autocomplete="off"></label>
+    <label>Reemplazar con <input id="replText" autocomplete="off"></label>
+    <div class="row">
+      <button type="button" id="findNext">Buscar siguiente</button>
+      <button type="button" id="replAll">Reemplazar todo</button>
+      <button value="close">Cerrar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Mensaje de Excel (Aceptar, o Aceptar/Cancelar); reemplaza alert/confirm, que cuelgan los escenarios REA (L-030) -->
+<dialog id="msgDlg">
+  <form method="dialog">
+    <h3>Bassxcel</h3>
+    <p id="msgText"></p>
+    <div class="row">
+      <button value="ok" id="msgOk">Aceptar</button>
+      <button value="cancel" id="msgCancel">Cancelar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="namesDlg" class="wide">
+  <form method="dialog">
+    <h3>Administrador de nombres</h3>
+    <div class="row left">
+      <button type="button" id="nmNew">Nuevo…</button>
+      <button type="button" id="nmEdit">Editar…</button>
+      <button type="button" id="nmDel">Eliminar</button>
+    </div>
+    <div class="nmlist">
+      <table id="nmTable">
+        <thead><tr><th>Nombre</th><th>Valor</th><th>Se refiere a</th><th>Ámbito</th><th>Comentario</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <label>Se refiere a:
+      <span class="nmref"><input id="nmRef" autocomplete="off" spellcheck="false"><button type="button" id="nmRefOk" title="Confirmar">✓</button></span>
+    </label>
+    <div class="row"><button value="close" id="nmClose">Cerrar</button></div>
+  </form>
+</dialog>
+
+<dialog id="nameEdDlg">
+  <form method="dialog" id="nameEdForm">
+    <h3 id="neTitle">Nombre nuevo</h3>
+    <label>Nombre: <input id="neName" autocomplete="off" spellcheck="false"></label>
+    <label>Ámbito: <select id="neScope"></select></label>
+    <label>Comentario: <textarea id="neComment" rows="3"></textarea></label>
+    <label>Se refiere a: <input id="neRef" autocomplete="off" spellcheck="false"></label>
+    <div class="row">
+      <button value="ok" id="neOk">Aceptar</button>
+      <button type="button" id="neCancel">Cancelar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="pasteNameDlg">
+  <form method="dialog" id="pasteNameForm">
+    <h3>Pegar nombre</h3>
+    <label>Pegar nombre <select id="pnList" size="8"></select></label>
+    <div class="row">
+      <button value="ok" id="pnOk">Aceptar</button>
+      <button type="button" id="pnCancel">Cancelar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="createNamesDlg">
+  <form method="dialog" id="createNamesForm">
+    <h3>Crear nombres a partir de la selección</h3>
+    <p>Crear nombres a partir de los valores de la:</p>
+    <label class="chk"><input type="checkbox" id="cnTop"> Fila superior</label>
+    <label class="chk"><input type="checkbox" id="cnLeft"> Columna izquierda</label>
+    <label class="chk"><input type="checkbox" id="cnBottom"> Fila inferior</label>
+    <label class="chk"><input type="checkbox" id="cnRight"> Columna derecha</label>
+    <div class="row">
+      <button value="ok" id="cnOk">Aceptar</button>
+      <button type="button" id="cnCancel">Cancelar</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="helpDlg">
+  <form method="dialog">
+    <h3>Bassxcel — Ayuda rápida</h3>
+    <div class="help">
+      <p><b>Fórmulas:</b> empieza con <code>=</code>. Ej: <code>=SUMA(A1:A10)</code>, <code>=SI(B2&gt;100;"Alto";"Bajo")</code>, <code>=Hoja2!A1*1,5</code>. Como Excel en español (Chile): <code>;</code> separa argumentos y la coma es el separador decimal.</p>
+      <p><b>Teclado (Excel en español):</b> Enter/Tab confirman · Alt+Enter salto de línea · F2 edita · Supr borra · Ctrl+C/X/V copiar, cortar, pegar · Ctrl+Alt+V pegado especial · Ctrl+Z/Y deshacer, rehacer · Ctrl+N negrita · Ctrl+K cursiva · Ctrl+S subrayado (o Ctrl+2/3/4) · Ctrl+Mayús+&gt; / Ctrl+&lt; tamaño de fuente · Ctrl+G guardar · F12 guardar como · Ctrl+A abrir · Ctrl+U libro nuevo · Ctrl+P imprimir · Ctrl+E seleccionar todo · Mayús+Espacio fila · Ctrl+Espacio columna · Ctrl+J rellenar hacia abajo · Ctrl+D hacia la derecha · Ctrl+B buscar · Ctrl+L reemplazar · Ctrl+I o F5 ir a · Ctrl+Mayús+L filtro · Ctrl+Alt+L volver a aplicar · Ctrl+flechas saltan. En el navegador Ctrl+N está reservado: usa Ctrl+2.</p>
+      <p><b>Matrices dinámicas:</b> una fórmula que devuelve varios valores (<code>=SECUENCIA(3;2)</code>, <code>=FILTRAR(A2:B9;B2:B9&gt;10)</code>, <code>=A1:A5*2</code>) se desborda sobre las celdas vacías vecinas (borde azul). <code>A1#</code> se refiere a todo el rango desbordado. Si algo lo bloquea aparece <code>#¡DESBORDAMIENTO!</code>: el indicador amarillo (o Alt+Mayús+F10) permite seleccionar las celdas que obstruyen.</p>
+      <p><b>Rangos con nombre:</b> selecciona un rango, escribe un nombre en el cuadro de nombres (a la izquierda de la barra de fórmulas) y presiona Enter; luego úsalo en fórmulas: <code>=SUMA(Ventas)</code>. Ctrl+F3 abre el Administrador de nombres, F3 pega un nombre en la fórmula y Ctrl+Mayús+F3 crea nombres a partir de los rótulos de la selección.</p>
+      <p><b>Ratón:</b> arrastra el cuadrito verde para rellenar (detecta series numéricas) · al escribir una fórmula, haz clic en celdas para insertar referencias · doble clic en una pestaña para renombrarla · clic derecho para más opciones.</p>
+      <p><b>Funciones disponibles:</b></p>
+      <p id="fnList" class="fnlist"></p>
+    </div>
+    <div class="row"><button value="close">Cerrar</button></div>
+  </form>
+</dialog>
+
+<script src="vendor/xlsx.full.min.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{
+  "name": "bassxcel",
+  "productName": "Bassxcel",
+  "version": "1.3.0",
+  "description": "Hoja de cálculo personal que funciona sin conexión",
+  "author": "Bassxcel",
+  "private": true,
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "electron .",
+    "web": "node serve.js",
+    "dist": "electron-builder --win nsis",
+    "test": "node tests/engine.test.js",
+    "mutate": "node tests/mutate.js",
+    "check:integrity": "node tests/check-integrity.js"
+  },
+  "build": {
+    "appId": "local.bassxcel.app",
+    "productName": "Bassxcel",
+    "copyright": "Uso personal",
+    "files": [
+      "web/**/*",
+      "desktop/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Bassxcel",
+      "artifactName": "Bassxcel-Setup-${version}.${ext}"
+    },
+    "fileAssociations": [
+      {
+        "ext": "bassx",
+        "name": "Libro Bassxcel",
+        "description": "Libro de Bassxcel",
+        "icon": "build/icon.ico"
+      }
+    ]
+  },
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.15.3"
+  }
+}
